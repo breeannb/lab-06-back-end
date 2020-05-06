@@ -1,64 +1,76 @@
-// import express from 'express';
+// const require = require('requirejs');
+const express = require('express'); 
 const dotenv = require('dotenv');
-
 dotenv.config();
-const express = require('express');
-const cors = require('cors');
+const cors = require('cor'); 
+const app = express(); //this is how we get an app 
 
-// bag of coins that indy uses
-const data = require('./data/weather.json');
-// we're going to replace this with a fetch to the API
+// import our data 
+const weatherdata = require('./data/weather.json');
+const geodata = require('./data/geo.json'); 
 
-const app = express();
-const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+const PORT = process.env.PORT || 3001; 
 
-function mungeWeather(weatherData) {
-  // munge that data
+// Function that munges our data to fit what is in trello example 
+const oneCity = {
+    'place_id': '282983083',
+    'licence': 'https://locationiq.com/attribution',
+    'osm_type': 'relation',
+    'osm_id': '186579',
+    'boundingbox': [
+        '45.432536',
+        '45.6528812',
+        '-122.8367489',
+        '-122.4720252'
+    ],
+    'lat': '45.5202471',
+    'lon': '-122.6741949',
+    'display_name': 'Portland, Multnomah County, Oregon, USA',
+    'class': 'place',
+    'type': 'city',
+    'importance': 0.75356571743377,
+    'icon': 'https://locationiq.org/static/images/mapicons/poi_place_city.p.20.png'
+}; 
 
-    return mungedData;
+
+
+function mungedLocation(oneCity) {
+    // munge that data
+    //once we have a single city, we want to just grab lat, lon and display_name
+    const test = (({ lat, lon }) => ({ lat, lon }))(oneCity);
+
+    console.log(test);
+    const mungedCity = { 
+        lat: '45.5202471',
+        lon: '-122.6741949',
+        display_name: 'Portland, Multnomah County, Oregon, USA',
+    }; 
+    
+
+    return mungedLocationData;
 }
 
+
+
+
+// create a route method of get and location 
 app.get('/location', (req, res) => {
-// req will have query parameters and some user data
     try {
-        const mungedResponse = mungeWeather(data);
+        const mungedResponse = mungedLocation(data);
         res.json(mungedResponse);
-    } catch (e) {
-        console.error(e);
+    } catch(e) {
+
+        // console.error(e);
 
         res.json({
-            status: 500,
+            status: 500, 
             responseText: e,
         });
     }
 });
+    
 
-
-app.get('/weather', (req, res) => {
-  // req will have query parameters and some user data
-    res.json([
-        {
-            forecast: 'Partly cloudy until afternoon.',
-            time: 'Mon Jan 01 2001',
-        },
-        {
-            forecast: 'Mostly cloudy in the morning.',
-            time: 'Tue Jan 02 2001',
-        },
-    ]);
-});
-
-// wildstar matches ANYTHING
-app.get('*', (req, res) => {
-  // req will have query parameters and some user data
-
-  // res.json is like the RETURN statement
-    res.status(404).json({
-        error: 'no such route!',
-    });
-});
 
 
 app.listen(PORT, () => { console.log(`listening on port ${PORT}`); });
